@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #000;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+
+        
+        .welcome-container {
+            text-align: center;
+            z-index: 10;
+            transition: opacity 0.5s ease;
+        }
+        
+        .eye {
+            width: 120px;
+            height: 60px;
+            border: 2px solid #fff;
+            border-radius: 60px;
+            margin: 0 auto 40px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .eye::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            width: 30px;
+            height: 16px;
+            border-top: 2px solid #fff;
+            border-radius: 20px 20px 0 0;
+            transform: rotate(-15deg);
+        }
+        
+        .eye::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            width: 30px;
+            height: 16px;
+            border-top: 2px solid #fff;
+            border-radius: 20px 20px 0 0;
+            transform: rotate(15deg);
+        }
+        
+        .pupil {
+            width: 48px;
+            height: 48px;
+            background-color: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.1s ease;
+        }
+        
+        .eye.dark {
+            border-color: #000;
+        }
+        
+        .eye.dark::before,
+        .eye.dark::after {
+            border-color: #000;
+        }
+        
+        .eye.dark .pupil {
+            background-color: #000;
+        }
+        
+        .eye.blinking {
+            height: 4px;
+        }
+        
+        .eye.blinking .pupil {
+            opacity: 0;
+        }
+        
+        .welcome-text {
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        
+        .floating-ball {
+            position: absolute;
+            width: 35px;
+            height: 35px;
+            background-color: #ffff00;
+            border-radius: 50%;
+            z-index: 5;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer;
+        }
+        
+        .yellow-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 35px;
+            height: 35px;
+            background-color: #ffff00;
+            transform: translate(-50%, -50%) scale(0);
+            border-radius: 50%;
+            z-index: 20;
+            transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .yellow-overlay.expanded {
+            transform: translate(-50%, -50%) scale(50);
+            border-radius: 0;
+        }
+        
+        .menu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            z-index: 30;
+            text-align: center;
+            transition: opacity 0.5s ease 0.8s;
+        }
+        
+        .menu.visible {
+            opacity: 1;
+        }
+        
+        .menu-item {
+            display: block;
+            color: #000;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 400;
+            margin: 20px 0;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+        
+        .menu-item:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+            transform: translateX(5px);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="welcome-container" id="welcomeContainer">
+        <div class="eye" id="eye">
+            <div class="pupil" id="pupil"></div>
+        </div>
+        <div class="welcome-text">Welcome to my website</div>
+    </div>
+    
+    <div class="floating-ball" id="floatingBall"></div>
+    
+    <div class="yellow-overlay" id="yellowOverlay"></div>
+    
+    <div class="menu" id="menu">
+        <a href="#" class="menu-item">about me</a>
+        <a href="#" class="menu-item">links</a>
+        <a href="#" class="menu-item">projects</a>
+        <a href="#" class="menu-item">fun fact</a>
+    </div>
+
+    <script>
+        const floatingBall = document.getElementById('floatingBall');
+        const eye = document.getElementById('eye');
+        const pupil = document.getElementById('pupil');
+        const welcomeContainer = document.getElementById('welcomeContainer');
+        const yellowOverlay = document.getElementById('yellowOverlay');
+        const menu = document.getElementById('menu');
+        
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let ballX = Math.random() * (window.innerWidth - 35);
+        let ballY = Math.random() * (window.innerHeight - 35);
+        let ballVelX = (Math.random() - 0.5) * 4;
+        let ballVelY = (Math.random() - 0.5) * 4;
+        let isExpanded = false;
+        
+        // Mouse tracking
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            if (isExpanded) {
+                updateEyePosition(mouseX, mouseY);
+            }
+        });
+        
+        // Floating ball animation
+        function animateBall() {
+            if (!isExpanded) {
+                ballX += ballVelX;
+                ballY += ballVelY;
+                
+                if (ballX <= 0 || ballX >= window.innerWidth - 35) {
+                    ballVelX *= -1;
+                }
+                if (ballY <= 0 || ballY >= window.innerHeight - 35) {
+                    ballVelY *= -1;
+                }
+                
+                ballX = Math.max(0, Math.min(window.innerWidth - 35, ballX));
+                ballY = Math.max(0, Math.min(window.innerHeight - 35, ballY));
+                
+                floatingBall.style.left = ballX + 'px';
+                floatingBall.style.top = ballY + 'px';
+                
+                updateEyePosition(ballX + 17.5, ballY + 17.5);
+            }
+            
+            requestAnimationFrame(animateBall);
+        }
+        
+        function updateEyePosition(targetX, targetY) {
+            const eyeRect = eye.getBoundingClientRect();
+            const eyeCenterX = eyeRect.left + eyeRect.width / 2;
+            const eyeCenterY = eyeRect.top + eyeRect.height / 2;
+            
+            const angle = Math.atan2(targetY - eyeCenterY, targetX - eyeCenterX);
+            const maxDistance = 30;
+            
+            const pupilX = Math.cos(angle) * maxDistance;
+            const pupilY = Math.sin(angle) * maxDistance;
+            
+            pupil.style.transform = `translate(calc(-50% + ${pupilX}px), calc(-50% + ${pupilY}px))`;
+        }
+        
+        // Ball click handler
+        floatingBall.addEventListener('click', () => {
+            if (!isExpanded) {
+                isExpanded = true;
+                
+                // Position overlay at ball location and expand
+                yellowOverlay.style.left = (ballX + 17.5) + 'px';
+                yellowOverlay.style.top = (ballY + 17.5) + 'px';
+                yellowOverlay.classList.add('expanded');
+                
+                // Hide welcome container
+                welcomeContainer.style.opacity = '0';
+                
+                // Hide floating ball
+                floatingBall.style.opacity = '0';
+                
+                // Change eye to dark
+                setTimeout(() => {
+                    eye.classList.add('dark');
+                    menu.classList.add('visible');
+                }, 400);
+            }
+        });
+        
+        // Blinking animation
+        function blink() {
+            if (!isExpanded) {
+                eye.classList.add('blinking');
+                setTimeout(() => {
+                    eye.classList.remove('blinking');
+                }, 150);
+            }
+            
+            // Random blink interval between 2-5 seconds
+            setTimeout(blink, Math.random() * 3000 + 2000);
+        }
+        
+        // Initialize
+        floatingBall.style.left = ballX + 'px';
+        floatingBall.style.top = ballY + 'px';
+        animateBall();
+        
+        // Start blinking
+        setTimeout(blink, Math.random() * 3000 + 2000);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            ballX = Math.min(ballX, window.innerWidth - 35);
+            ballY = Math.min(ballY, window.innerHeight - 35);
+        });
+    </script>
+</body>
+</html>
