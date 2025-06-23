@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>psyarov</title>
+    <title>Welcome</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap');
         
@@ -54,7 +54,6 @@
             border-top: 2px solid #fff;
             border-radius: 20px 20px 0 0;
             transform: rotate(-15deg);
-            z-index: 1;
         }
         
         .eye::after {
@@ -67,7 +66,6 @@
             border-top: 2px solid #fff;
             border-radius: 20px 20px 0 0;
             transform: rotate(15deg);
-            z-index: 1;
         }
         
         .pupil {
@@ -80,7 +78,6 @@
             left: 50%;
             transform: translate(-50%, -50%);
             transition: all 0.1s ease;
-            z-index: 0;
         }
         
         .eye.dark {
@@ -104,68 +101,10 @@
             opacity: 0;
         }
         
-        /* Sad eye styles */
-        .eye.sad {
-            border-color: #fff;
-            overflow: hidden; /* Keep overflow hidden even when sad */
-        }
-        
-        .eye.sad::before {
-            display: none;
-        }
-        
-        .eye.sad::after {
-            display: none;
-        }
-        
-        .eye.sad .pupil {
-            background-color: #fff;
-            top: 60%;
-        }
-        
-        /* Tear drop */
-        .tear {
-            position: fixed;
-            width: 12px;
-            height: 18px;
-            background-color: #4FC3F7;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            z-index: 15;
-            opacity: 0;
-            animation: tearDrop 3s ease-in-out;
-        }
-        
-        @keyframes tearDrop {
-            0% {
-                opacity: 0;
-            }
-            15% {
-                opacity: 1;
-            }
-            30% {
-                opacity: 1;
-                transform: translateY(10px);
-                animation-timing-function: ease-out;
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(100vh);
-                animation-timing-function: ease-in;
-            }
-        }
-        
         .welcome-text {
             font-size: 28px;
             font-weight: 300;
             letter-spacing: 2px;
-        }
-        
-        .construction-text {
-            font-size: 18px;
-            font-weight: 300;
-            letter-spacing: 1px;
-            color: #888;
-            margin-top: 20px;
         }
         
         .floating-ball {
@@ -193,7 +132,7 @@
         }
         
         .yellow-overlay.expanded {
-            transform: translate(-50%, -50%) scale(100);
+            transform: translate(-50%, -50%) scale(50);
             border-radius: 0;
         }
         
@@ -222,7 +161,6 @@
             padding: 10px 20px;
             transition: all 0.3s ease;
             letter-spacing: 1px;
-            cursor: pointer;
         }
         
         .menu-item:hover {
@@ -238,8 +176,7 @@
         <div class="eye" id="eye">
             <div class="pupil" id="pupil"></div>
         </div>
-        <div class="welcome-text" id="welcomeText">Welcome to my website</div>
-        <div class="construction-text" id="constructionText" style="display: none;">under construction...</div>
+        <div class="welcome-text">Welcome to my website</div>
     </div>
     
     <div class="floating-ball" id="floatingBall"></div>
@@ -247,10 +184,10 @@
     <div class="yellow-overlay" id="yellowOverlay"></div>
     
     <div class="menu" id="menu">
-        <a href="#" class="menu-item" data-page="about">about me</a>
-        <a href="#" class="menu-item" data-page="links">links</a>
-        <a href="#" class="menu-item" data-page="projects">projects</a>
-        <a href="#" class="menu-item" data-page="fun">fun fact</a>
+        <a href="#" class="menu-item">about me</a>
+        <a href="#" class="menu-item">links</a>
+        <a href="#" class="menu-item">projects</a>
+        <a href="#" class="menu-item">fun fact</a>
     </div>
 
     <script>
@@ -258,8 +195,6 @@
         const eye = document.getElementById('eye');
         const pupil = document.getElementById('pupil');
         const welcomeContainer = document.getElementById('welcomeContainer');
-        const welcomeText = document.getElementById('welcomeText');
-        const constructionText = document.getElementById('constructionText');
         const yellowOverlay = document.getElementById('yellowOverlay');
         const menu = document.getElementById('menu');
         
@@ -312,70 +247,13 @@
             const eyeCenterY = eyeRect.top + eyeRect.height / 2;
             
             const angle = Math.atan2(targetY - eyeCenterY, targetX - eyeCenterX);
-            
-            // Constrain pupil movement within the eye bounds
-            // Reduce max distance to ensure pupil stays within the eye
-            const maxDistance = eye.classList.contains('sad') ? 15 : 30;
+            const maxDistance = 30;
             
             const pupilX = Math.cos(angle) * maxDistance;
             const pupilY = Math.sin(angle) * maxDistance;
             
             pupil.style.transform = `translate(calc(-50% + ${pupilX}px), calc(-50% + ${pupilY}px))`;
         }
-        
-        // Function to create tear drop
-        function createTear() {
-            const tear = document.createElement('div');
-            tear.className = 'tear';
-            
-            // Position tear at the bottom corner of the eye
-            const eyeRect = eye.getBoundingClientRect();
-            const tearStartX = eyeRect.left + (eyeRect.width * 0.4); // 40% from left edge of eye
-            const tearStartY = eyeRect.bottom - 5; // Just below the eye
-            
-            tear.style.left = tearStartX + 'px';
-            tear.style.top = tearStartY + 'px';
-            
-            // Add to body instead of eye so it can fall freely
-            document.body.appendChild(tear);
-            
-            // Remove tear after animation
-            setTimeout(() => {
-                if (tear.parentNode) {
-                    tear.parentNode.removeChild(tear);
-                }
-            }, 3000);
-        }
-        
-        // Menu item click handlers
-        document.querySelectorAll('.menu-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                
-                // Hide menu
-                menu.classList.remove('visible');
-                
-                // Collapse yellow overlay back to dot
-                setTimeout(() => {
-                    yellowOverlay.classList.remove('expanded');
-                    yellowOverlay.style.transform = 'translate(-50%, -50%) scale(0)';
-                }, 300);
-                
-                // After yellow overlay disappears, show sad eye
-                setTimeout(() => {
-                    eye.classList.remove('dark');
-                    eye.classList.add('sad');
-                    welcomeContainer.style.opacity = '1';
-                    
-                    // Change text
-                    welcomeText.style.display = 'none';
-                    constructionText.style.display = 'block';
-                    
-                    // Create tear drop
-                    createTear();
-                }, 1200); // Wait for yellow overlay to fully collapse
-            });
-        });
         
         // Ball click handler
         floatingBall.addEventListener('click', () => {
@@ -403,7 +281,7 @@
         
         // Blinking animation
         function blink() {
-            if (!isExpanded && !eye.classList.contains('sad')) {
+            if (!isExpanded) {
                 eye.classList.add('blinking');
                 setTimeout(() => {
                     eye.classList.remove('blinking');
